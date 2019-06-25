@@ -1,19 +1,15 @@
-//Irregular clock 0111100101000011
-
 //constantes que determinam a quantidade de ciclos em
 //cada estado possivel do semaforo A. Os valores podem
 //ser ajustados para qualquer numero positivo menor ou
 //igual a 255
-`define VERDE 8'd3
-`define AMARELO 8'd1
+`define VERDE 8'd1
+`define AMARELO 8'd3
 `define VERMELHO 8'd2
-
-// Definição de variáveis:
-`define N_CYCLES 10
+`define N_CYCLES 100
 
 //definicao do modulo de testbench. Mantenha o mesmo
 //nome desse arquivo (sem a extensao .v)
-module testbench_entry();
+module test_reset();
 	reg clk,bt,rst;//1 bit, sinais de entrada
 	wire [2:0] As;//estado do semaforo A
 	wire [2:0] Bs;//estado do semaforo B
@@ -26,7 +22,7 @@ module testbench_entry();
 	initial begin
 		//arquivo de dump para o gtkwave. Deve ser sempre
 		//o nome do modulo de testbench seguido de .vcd
-		$dumpfile("testbench_entry.vcd");
+		$dumpfile("test_reset.vcd");
 		$dumpvars;
 	end
 
@@ -34,21 +30,9 @@ module testbench_entry();
 	//crie outras sequencias de forma a testar o seu codigo
 	initial begin
 		clk = 1'b0;
-		#1 clk = 1'b1;
-		#1 clk = 1'b1;
-		#1 clk = 1'b1;
-		#1 clk = 1'b1;
-		#1 clk = 1'b0;
-		#1 clk = 1'b0;
-		#1 clk = 1'b1;
-		#1 clk = 1'b0;
-		#1 clk = 1'b1;
-		#1 clk = 1'b0;
-		#1 clk = 1'b0;
-		#1 clk = 1'b0;
-		#1 clk = 1'b0;
-		#1 clk = 1'b1;
-		#1 clk = 1'b1;
+		for (i=0; i<`N_CYCLES; i=i+1)begin
+			#1  clk = clk ^ 1'b1;
+		end
 		#1 $finish;//finalizando a simulacao
 	end
 	
@@ -57,12 +41,15 @@ module testbench_entry();
 	initial begin
 		bt = 1'b0;//comece zerado
 
-		//botao acionado no instante 1
-		#1 bt = 1'b1;
-		#1 bt = 1'b0;//solto no instante 2
-		//botao acionado no instante 7
+		//botao acionado no instante 2
+		#2 bt = 1'b1;
+		#1 bt = 1'b0;//solto no instante 3
+		//botao acionado no instante 8
 		#5 bt = 1'b1;
-		#1 bt = 1'b0;//solto no instante 8
+		#1 bt = 1'b0;//solto no instante 9
+
+		#6 bt = 1'b1;
+		#6 bt = 1'b0;//solto no instante 21
 	end
 
 	//bloco utilizado para controlar o sinal de reset.
@@ -70,7 +57,9 @@ module testbench_entry();
 	initial begin
 		rst = 1'b1;
 		#1 rst = 1'b0;//reset apos o primeiro ciclo
-		#6 rst = 1'b0;//reset apos o primeiro ciclo
+		
+		#5 rst = 1'b1;//reset pressionado apos o decimo quinto ciclo
+		#1 rst = 1'b0;//reset solto apos o vigesimo ciclo
 	end
 	
 endmodule

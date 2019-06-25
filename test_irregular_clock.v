@@ -1,3 +1,5 @@
+//Irregular clock 0111100101000011
+
 //constantes que determinam a quantidade de ciclos em
 //cada estado possivel do semaforo A. Os valores podem
 //ser ajustados para qualquer numero positivo menor ou
@@ -7,7 +9,7 @@
 `define VERMELHO 8'd2
 
 // Definição de variáveis:
-`define N_CYCLES 100
+`define N_CYCLES 10
 
 //definicao do modulo de testbench. Mantenha o mesmo
 //nome desse arquivo (sem a extensao .v)
@@ -31,10 +33,22 @@ module testbench_entry();
 	//bloco utilizado para controlar o sinal de clock.
 	//crie outras sequencias de forma a testar o seu codigo
 	initial begin
-		clk = 1'b1;
-		for (i=0; i<`N_CYCLES; i=i+1)begin
-			if (i%5 == 0) #3 clk = clk;
-		end
+		clk = 1'b0;
+		#1 clk = 1'b1;
+		#1 clk = 1'b1;
+		#1 clk = 1'b1;
+		#1 clk = 1'b1;
+		#1 clk = 1'b0;
+		#1 clk = 1'b0;
+		#1 clk = 1'b1;
+		#1 clk = 1'b0;
+		#1 clk = 1'b1;
+		#1 clk = 1'b0;
+		#1 clk = 1'b0;
+		#1 clk = 1'b0;
+		#1 clk = 1'b0;
+		#1 clk = 1'b1;
+		#1 clk = 1'b1;
 		#1 $finish;//finalizando a simulacao
 	end
 	
@@ -49,6 +63,12 @@ module testbench_entry();
 		//botao acionado no instante 7
 		#5 bt = 1'b1;
 		#1 bt = 1'b0;//solto no instante 8
+		//botao acionado no instante 9
+		#1 bt = 1'b1;
+		#1 bt = 1'b0;//solto no instante 10
+		//botao acionado no instante 9
+		#1 bt = 1'b1;
+		#1 bt = 1'b0;//solto no instante 10
 	end
 
 	//bloco utilizado para controlar o sinal de reset.
@@ -56,6 +76,7 @@ module testbench_entry();
 	initial begin
 		rst = 1'b1;
 		#1 rst = 1'b0;//reset apos o primeiro ciclo
+		#6 rst = 1'b0;//reset apos o primeiro ciclo
 	end
 	
 endmodule
