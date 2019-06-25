@@ -4,96 +4,105 @@
 module semaforo(input clk, input rst, input bt,
 	output reg [2:0] A, output reg [2:0] B);
 
-	reg [1:0] state, next_state;
-  reg [8:0] cnt;
+  // Estado de A e prox Estado
+	reg [1:0] state_a, next_state_a;
+  // Contador para contar quanto tempo
+  // vai ficar no estado
+  reg [8:0] counter;
 
+  // Estado de B
 	reg [1:0] state_b;
 
-  reg start_b = `false;
+  // Variaveis para controle 
+  reg bt_pressed = `false;
   reg ciclo = `false;
   reg follow_a = `false;
 
-  // Assíncrono: seta o seguinte estado e reseta o contador
-  always @(state, cnt) begin
-    case(state)
+  // Assíncrono: seta o seguinte estado
+  always @(state_a, counter) begin
+    case(state_a)
     0: // Cor Verde
-    if (cnt == `VERDE) 
-        next_state = 1; // Prox estado
-    else next_state = 0;
+    if (counter == `VERDE) 
+        next_state_a = 1; // Prox estado
+    else next_state_a = 0;
     
     1: // Cor Amarela
-    if (cnt == `AMARELO) 
-        next_state = 2;
-    else next_state = 1;
+    if (counter == `AMARELO) 
+        next_state_a = 2;
+    else next_state_a = 1;
     
     2: // Cor Vermelha
-    if (cnt == `VERMELHO)
-        next_state = 0;
-    else next_state = 2;
+    if (counter == `VERMELHO)
+        next_state_a = 0;
+    else next_state_a = 2;
   
-    default: next_state = 0;
+    default: next_state_a = 0;
     endcase
   end
 
   // Quando tiver um reset (borda de descida)
   always @(negedge rst) begin
-    cnt = 1; // Seta contador como 01
-    state = 0; // Coloca estado em 0
+    counter = 1; // Seta contador como 01
+    state_a = 0; // Estado de A vai para 0
     state_b = 0; // Estado de B vai para 0
-    next_state = 0;
+    next_state_a = 0;
     follow_a = `false;
-    start_b = `false;
+    bt_pressed = `false;
   end
 
-  // Quando botao for acionado
+  // Quando botao for acionado (borda de subida)
   always @(posedge bt) begin
-    start_b = `true;
+    bt_pressed = `true;
   end
 
   // Sincrono: Atualizacao do estado
   always @(posedge clk) begin
-    state = next_state;
+    state_a = next_state_a;
     // Se o botao foi apertado e comecou um ciclo entao
     // comece a seguir o semaforo A
-    if(start_b == `true && ciclo == `true) begin
-      start_b = `false;
+    if(bt_pressed == `true && ciclo == `true) begin
+      bt_pressed = `false;
       ciclo = `false;
       follow_a = `true;
     end
+
+    // Se o semaforo B esta seguindo A, seu estado sera o mesmo de A
     if(follow_a)
-      state_b = state;
+      state_b = state_a;
   end
 
   // Saida Estado A e configuracoes ao comecar um estado!
-  always @(state) begin
-    if(state == 0) 
+  always @(state_a) begin
+    if(state_a == 0) 
       begin
       A = 3'b 100; // Cor Verde
 
       // Contador em um
-      cnt = 1;
+      counter = 1;
       
       // Se B ja estiver seguindo A, coloque como falso o bt
-      if (follow_a) start_b = `false;
+      if (follow_a) bt_pressed = `false;
       
       // Semaforo B para de seguir A quando completa o cilo
       follow_a = `false;
 
       // Ciclo foi completado
       ciclo = `true;
+
       end
-    else if(state == 1) begin
+    else if(state_a == 1) begin
       A = 3'b 010; // Cor Amarela
       // Ao chegar nesse estado setar:
+
       // Contador em um
-      cnt = 1;
+      counter = 1;
       // Ciclo em andamento
       ciclo = `false;
       end
     else begin
       A = 3'b 001; // Cor Vermelha
       // Contador em um:
-      cnt = 1;
+      counter = 1;
       end
   end
 
@@ -111,9 +120,9 @@ module semaforo(input clk, input rst, input bt,
       end
   end
 
-  // Contador	
+  // Contador, aumenta com a borda de subida do clock
   always @(posedge clk) begin
-    cnt = cnt + 1;
+    counter = counter + 1;
 	end
 
 endmodule
