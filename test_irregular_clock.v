@@ -34,21 +34,23 @@ module testbench_entry();
 	//crie outras sequencias de forma a testar o seu codigo
 	initial begin
 		clk = 1'b0;
-		#1 clk = 1'b1;
-		#1 clk = 1'b1;
-		#1 clk = 1'b1;
-		#1 clk = 1'b1;
-		#1 clk = 1'b0;
-		#1 clk = 1'b0;
-		#1 clk = 1'b1;
-		#1 clk = 1'b0;
-		#1 clk = 1'b1;
-		#1 clk = 1'b0;
-		#1 clk = 1'b0;
-		#1 clk = 1'b0;
-		#1 clk = 1'b0;
-		#1 clk = 1'b1;
-		#1 clk = 1'b1;
+		for (i=0; i<`N_CYCLES; i=i+1)begin
+			#1 clk = 1'b1;
+			#1 clk = 1'b1;
+			#1 clk = 1'b1;
+			#1 clk = 1'b1;
+			#1 clk = 1'b0;
+			#1 clk = 1'b0;
+			#1 clk = 1'b1;
+			#1 clk = 1'b0;
+			#1 clk = 1'b1;
+			#1 clk = 1'b0;
+			#1 clk = 1'b0;
+			#1 clk = 1'b0;
+			#1 clk = 1'b0;
+			#1 clk = 1'b1;
+			#1 clk = 1'b1;
+		end
 		#1 $finish;//finalizando a simulacao
 	end
 	
