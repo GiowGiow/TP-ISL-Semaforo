@@ -26,7 +26,7 @@ module testbench_entry();
 	initial begin
 		//arquivo de dump para o gtkwave. Deve ser sempre
 		//o nome do modulo de testbench seguido de .vcd
-		$dumpfile("testbench_entry.vcd");
+		$dumpfile("test_irregular_clock.vcd");
 		$dumpvars;
 	end
 
