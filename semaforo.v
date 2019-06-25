@@ -2,16 +2,16 @@
 `define false 0
 
 module semaforo(input clk, input rst, input bt,
-	output reg [2:0] A, output reg [2:0] B);
+	        output reg [2:0] A, output reg [2:0] B);
 
   // Estado de A e prox Estado
-	reg [1:0] state_a, next_state_a;
+  reg [1:0] state_a, next_state_a;
   // Contador para contar quanto tempo
   // vai ficar no estado
   reg [8:0] counter;
 
   // Estado de B
-	reg [1:0] state_b;
+  reg [1:0] state_b;
 
   // Variaveis para controle 
   reg bt_pressed = `false;
@@ -21,22 +21,26 @@ module semaforo(input clk, input rst, input bt,
   // Assíncrono: seta o seguinte estado
   always @(state_a, counter) begin
     case(state_a)
-    0: // Cor Verde
-    if (counter == `VERDE) 
-        next_state_a = 1; // Prox estado
-    else next_state_a = 0;
+      0: // Cor Verde
+        if (counter == `VERDE) 
+          next_state_a = 1; // Prox estado
+        else 
+	  next_state_a = 0;
+   
+      1: // Cor Amarela
+        if (counter == `AMARELO) 
+          next_state_a = 2;
+        else 
+	  next_state_a = 1;
     
-    1: // Cor Amarela
-    if (counter == `AMARELO) 
-        next_state_a = 2;
-    else next_state_a = 1;
-    
-    2: // Cor Vermelha
-    if (counter == `VERMELHO)
-        next_state_a = 0;
-    else next_state_a = 2;
-  
-    default: next_state_a = 0;
+      2: // Cor Vermelha
+        if (counter == `VERMELHO)
+          next_state_a = 0;
+        else 
+	  next_state_a = 2;
+	    
+      default: 
+	next_state_a = 0;
     endcase
   end
 
@@ -75,20 +79,20 @@ module semaforo(input clk, input rst, input bt,
   always @(state_a) begin
     if(state_a == 0) 
       begin
-      A = 3'b 100; // Cor Verde
+        A = 3'b 100; // Cor Verde
 
-      // Contador em um
-      counter = 1;
+        // Contador em um
+        counter = 1;
       
-      // Se B ja estiver seguindo A, coloque como falso o bt
-      if (follow_a) bt_pressed = `false;
+        // Se B ja estiver seguindo A, coloque como falso o bt
+        if (follow_a) 
+	  bt_pressed = `false;
       
-      // Semaforo B para de seguir A quando completa o cilo
-      follow_a = `false;
+        // Semaforo B para de seguir A quando completa o cilo
+        follow_a = `false;
 
-      // Ciclo foi completado
-      ciclo = `true;
-
+        // Ciclo foi completado
+        ciclo = `true;
       end
     else if(state_a == 1) begin
       A = 3'b 010; // Cor Amarela
@@ -98,32 +102,31 @@ module semaforo(input clk, input rst, input bt,
       counter = 1;
       // Ciclo em andamento
       ciclo = `false;
-      end
+    end
     else begin
       A = 3'b 001; // Cor Vermelha
       // Contador em um:
       counter = 1;
-      end
+    end
   end
 
   // Saida Estado B
   always @(state_b) begin
-    if(state_b == 0) 
-      begin
+    if(state_b == 0) begin
       B = 3'b 100; // Cor Verde
-      end
+    end
     else if(state_b == 1) begin
       B = 3'b 010; // Cor Amarela
-      end
+    end
     else begin
       B = 3'b 001; // Cor Vermelha
-      end
+    end
   end
 
   // Contador, aumenta com a borda de subida do clock
   always @(posedge clk) begin
     counter = counter + 1;
-	end
-
+  end
+	
 endmodule
 	
